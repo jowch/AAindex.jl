@@ -1,7 +1,12 @@
 
 const ENTRY_SYMBOLS = "HDRATJCIM*"
 
+"""
+    parse(path, [targets])
 
+Reads and parses the AAindex file located at `path`. Optionally, specific
+entry IDs (denoted by H) can be provided in `targets`.
+"""
 function parse(path::AbstractString, targets::Array{String} = String[])::Array{AbstractAAIndex}
     if !ispath(path)
         error("PATH does not exist (given: $path)")
