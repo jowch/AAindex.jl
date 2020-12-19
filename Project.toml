@@ -1,7 +1,7 @@
 name = "AAindex"
 uuid = "1cd36ffe-cb05-4761-9ff9-f7bc1999e190"
 authors = ["Jonathan Chen <jwhc@ucla.edu>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
