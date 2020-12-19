@@ -19,7 +19,7 @@ function parse(path::AbstractString, targets::Array{String} = String[])::Array{A
             # read and parse indicies until end of file
             span = readuntil(io, "//\n")
 
-            if isempty(targets) || _parse_id(span) in targets
+            if isempty(targets) || parse_id(span) in targets
                 if !isempty(strip(span))
                     push!(indices, _parse(span))
                 end
@@ -72,8 +72,8 @@ function _parse(record::String)::AbstractAAIndex
 end
 
 
-function _parse_id(record::String)::String
-    only(match(r"^H ([\w\d]+)\n", record).captures)
+function parse_id(record::String)::String
+    only(match(r"(\w{4}\d{6})", record).captures)
 end
 
 
