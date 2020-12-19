@@ -2,8 +2,8 @@
 @testset "Parse" begin
 
     @testset "Parse ID" begin
-        @test AAindex._parse_id(test_a1) == "ANDN920101"
-        @test AAindex._parse_id(test_a2) == "ALTS910101"
+        @test AAindex.parse_id(test_a1) == "ANDN920101"
+        @test AAindex.parse_id(test_a2) == "ALTS910101"
     end
 
     @testset "Parse Index" begin
@@ -12,7 +12,7 @@
 
     @testset "Parse File" begin
         parsed = AAindex.parse("testdata/aaindex1")
-        @test first(parsed).metadata.key == AAindex._parse_id(test_a1)
+        @test first(parsed).metadata.key == AAindex.parse_id(test_a1)
     end
 
 end
