@@ -1,6 +1,6 @@
 # AAindex.jl
 
-A package to read AAindex database files. These contain a variety of reported
+A package to read [AAindex](https://www.genome.jp/aaindex/) database files. These contain a variety of reported
 physico-chemical and biochemical properties of amino acids (Kawashima and Kanehisa, 2000).
 
 ## Usage
