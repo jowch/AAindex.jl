@@ -10,11 +10,17 @@ module AAindex
 
 using StaticArrays
 
-export AbstractAAIndex, Metadata, Index, AMatrix, parse
+export 
+# Types
+AbstractAAIndex, Metadata, Index, AMatrix, 
+
+# Functions
+parse, search, search_id, is_key
 
 abstract type AbstractAAIndex end
 
 include("./index.jl")
 include("./parse.jl")
+include("./search.jl")
 
 end # module
