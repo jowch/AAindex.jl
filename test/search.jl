@@ -7,19 +7,16 @@
         @test !AAindex.is_key("COJ80107")
     end
 
-    @testset "search_id" begin
-        result = search("NGPC000101")
+    @testset "search" begin
+        id, description, index_type = only(search("PHAT"))
+
+        @test id == "NGPC000101"
+        @test index_type === AAindex.AMatrix
+
+        result = aaindex_by_id(id)
         
         @test result isa AAindex.AMatrix
         @test result.metadata.title == "PHAT: a transmembrane-specific substitution matrix"
-    end
-
-    @testset "search" begin
-        results = search("PHAT")
-
-        @test length(results) == 1
-        @test only(results) isa AAindex.AMatrix
-        @test only(results).metadata.key == "NGPC000101"
     end
 
 end

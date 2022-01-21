@@ -17,7 +17,7 @@ Each entry has the following format:
       Leu    Lys    Met    Phe    Pro    Ser    Thr    Trp    Tyr    Val
 """
 struct Metadata
-    key::String
+    id::String
     description::String
     reference::Array{String}
     journal::String
@@ -40,7 +40,7 @@ end
 
 
 """
-An amino acid mutation and contact potential matrix is __generally__ 20 × 20
+An amino acid mutation and contact potential matrix is __generally__ 20 x 20
 numerical values representing similarity of amino acids.
 
 Note that the row/column identities may not represent standard amino acid

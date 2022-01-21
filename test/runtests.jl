@@ -5,7 +5,8 @@ const testdir = dirname(@__FILE__)
 
 tests = [
     "index",
-    "parse"
+    "parse",
+    "search"
 ]
 
 include("testdata/testvars.jl")

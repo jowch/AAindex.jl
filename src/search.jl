@@ -1,12 +1,3 @@
-
-const ENTRY_INDICES = [
-    "list_of_indices",
-    "list_of_matrices",
-    "list_of_potentials"
-]
-
-const PROVIDED_AAINDEX_DIRECTORY = joinpath(@__DIR__, "aaindex")
-
 """
     is_key(candidate)
 
@@ -18,43 +9,44 @@ function is_key(candidate::String)::Bool
 end
 
 """
-    search_id(key, [aaindex_directory])
+    aaindex_by_id(id)
 
-Searches for specified AAindex entry key (accession number) and returns the
-loaded entry. Throws an error if the key is not in the database.
+Load an AAindex by its id.
 """
-function search_id(key::String, aaindex_directory=PROVIDED_AAINDEX_DIRECTORY)::AbstractAAIndex
-    if is_key(key)
-        try
-            return only(search(key, aaindex_directory))
-        catch
-            throw(KeyError("Accession number $key was not found in database"))
+function aaindex_by_id(id::String)
+    if !is_key(id)
+        throw(ArgumentError("$id is not a valid AAindex identifier"))
+    end
+
+    try
+        jldopen(joinpath(datadep"AAindex", "aaindex.jld2"), "r") do file
+            return file["entries"][id]
         end
+    catch
+        throw(ArgumentError("$id is not a valid AAindex identifier"))
     end
 end
 
-"""
-    search(term, [aaindex_directory])
+function search(term::String)
+    database_path = joinpath(datadep"AAindex", "aaindex.jld2")
 
-Performs a naive substring search for provided `term` in the key and
-title fields of records in the database. Returns an unsorted list of
-entries containing the term.
-"""
-function search(term::String, aaindex_directory=PROVIDED_AAINDEX_DIRECTORY)::Array{AbstractAAIndex}
-    results = []
+    ids, descriptions, types = jldopen(database_path, "r") do file
+        file["ids"], file["descriptions"], file["types"]
+    end
 
-    for (i, index) in enumerate(ENTRY_INDICES)
-        open(joinpath(aaindex_directory, index), "r") do io
-            entries = readlines(io)[6:end]
-            for entry in entries
-                if occursin(term, entry)
-                    key = parse_id(entry)
-                    push!(results, only(parse(joinpath(aaindex_directory, "aaindex$i"), [key])))
-                end
-            end
+    match_indices = Set()
+
+    for (i, id) in enumerate(ids)
+        if id == term
+            push!(match_indices, i)
         end
     end
 
-    results
-end
+    for (i, description) in enumerate(descriptions)
+        if occursin(term |> lowercase, description |> lowercase)
+            push!(match_indices, i)
+        end
+    end
 
+    [(ids[i], descriptions[i], types[i]) for i in match_indices]
+end

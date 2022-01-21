@@ -2,36 +2,25 @@
 const ENTRY_SYMBOLS = "HDRATJCIM*"
 
 """
-    parse(path, [targets])
+    foreachentry(f, path)
 
-Reads and parses the AAindex file located at `path`. Optionally, specific
-entry IDs (denoted by H) can be provided in `targets`.
+Iterates over each entry in AAindex file at `path` and applies function `f` to it.
 """
-function parse(path::AbstractString, targets::Array{String} = String[])::Array{AbstractAAIndex}
-    if !ispath(path)
-        error("PATH does not exist (given: $path)")
-    end
-
-    indices::Array{AbstractAAIndex} = []
-
+function foreachentry(f, path)
     open(path, "r") do io
         while !eof(io)
             # read and parse indicies until end of file
-            span = readuntil(io, "//\n")
-
-            if isempty(targets) || parse_id(span) in targets
-                if !isempty(strip(span))
-                    push!(indices, _parse(span))
-                end
-            end
+            f(readuntil(io, "//\n"))
         end
     end
-
-    return indices
 end
 
+"""
+    parse(record)
 
-function _parse(record::String)::AbstractAAIndex
+Parses given AAindex `entry`.
+"""
+function parse(record::String)::AbstractAAIndex
     pairs = Dict()
     lines = map(String, split(record, '\n', keepempty=false))
 
