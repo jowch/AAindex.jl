@@ -8,6 +8,8 @@ S and Kanehisa M. (2000)](https://dx.doi.org/10.1093%2Fnar%2F28.1.374)
 """
 module AAindex
 
+using DataDeps
+using JLD2
 using StaticArrays
 
 export 
@@ -15,10 +17,12 @@ export
 AbstractAAIndex, Metadata, Index, AMatrix, 
 
 # Functions
-parse, search, search_id, is_key
+parse, aaindex_by_id, search
 
 abstract type AbstractAAIndex end
 
+include("./init.jl")
+include("./data.jl")
 include("./index.jl")
 include("./parse.jl")
 include("./search.jl")

@@ -10,9 +10,11 @@
         @test AAindex._parse_index(test_index) == test_index_result
     end
 
-    @testset "Parse File" begin
-        parsed = AAindex.parse("testdata/aaindex1")
-        @test first(parsed).metadata.key == AAindex.parse_id(test_a1)
+    @testset "Parse entry" begin
+        parsed = AAindex.parse(test_a1)
+
+        @test parsed.metadata.id == AAindex.parse_id(test_a1)
+        @test parsed.data == test_index_result
     end
 
 end
