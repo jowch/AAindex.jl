@@ -1,7 +1,7 @@
 name = "AAindex"
 uuid = "1cd36ffe-cb05-4761-9ff9-f7bc1999e190"
 authors = ["Jonathan Chen <jwhc@ucla.edu>"]
-version = "0.2.0"
+version = "0.3.0"
 
 [deps]
 DataDeps = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
