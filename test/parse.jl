@@ -16,5 +16,4 @@
         @test parsed.metadata.id == AAindex.parse_id(test_a1)
         @test parsed.data == test_index_result
     end
-
 end

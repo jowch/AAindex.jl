@@ -35,7 +35,10 @@ function __init__()
         ]
     ))
 
-    if !isfile(joinpath(datadep"AAindex", "aaindex.jld2"))
-        preprocess_aaindex()
+    if !isfile(joinpath(datadep"AAindex", "index.csv"))
+        build_index(datadep"AAindex")
     end
+
+    # load index so that it is available for use in the package
+    global INDEX = load_index()
 end

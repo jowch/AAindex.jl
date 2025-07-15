@@ -23,3 +23,6 @@ docs/site/
 # environment.
 Manifest.toml
 .DS_Store
+
+# Test generated data
+test/testdata/index.csv

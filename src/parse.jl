@@ -2,20 +2,6 @@
 const ENTRY_SYMBOLS = "HDRATJCIM*"
 
 """
-    foreachentry(f, path)
-
-Iterates over each entry in AAindex file at `path` and applies function `f` to it.
-"""
-function foreachentry(f, path)
-    open(path, "r") do io
-        while !eof(io)
-            # read and parse indicies until end of file
-            f(readuntil(io, "//\n"))
-        end
-    end
-end
-
-"""
     parse(record)
 
 Parses given AAindex `entry`.
@@ -26,7 +12,7 @@ function parse(record::String)::AbstractAAIndex
 
     while !isempty(lines) && first(lines) != "//"
         line = popfirst!(lines)
-        tag, value = line[1], line[3:end]
+        tag, value = line[1], strip(line[3:end])
 
         while !isempty(lines) && isspace(first(first(lines)))
             value *= " " * popfirst!(lines)

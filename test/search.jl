@@ -8,15 +8,18 @@
     end
 
     @testset "search" begin
-        id, description, index_type = only(search("PHAT"))
+        (; id, description) = only(search("PHAT"))
 
-        @test id == "NGPC000101"
-        @test index_type === AAindex.AMatrix
+        expected_id = "NGPC000101"
+        expected_description = "Substitution matrix (PHAT) built from hydrophobic and transmembrane regions   of the Blocks database (Ng et al., 2000)"
+
+        @test id == expected_id
+        @test description == expected_description
 
         result = aaindex_by_id(id)
         
         @test result isa AAindex.AMatrix
-        @test result.metadata.title == "PHAT: a transmembrane-specific substitution matrix"
+        @test result.metadata.description == expected_description
     end
 
 end

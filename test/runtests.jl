@@ -1,3 +1,5 @@
+ENV["DATADEPS_ALWAYS_ACCEPT"] = true
+
 using AAindex
 using Test
 
@@ -6,6 +8,7 @@ const testdir = dirname(@__FILE__)
 tests = [
     "index",
     "parse",
+    "data",
     "search"
 ]
 
