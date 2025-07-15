@@ -12,7 +12,7 @@ The main interface provided by this package is the `search` function, which
 accepts a search term (_e.g._, `ANDN920101` or `hydrophobicity`) and,
 optionally, a path to an AAindex database file. It will search through the
 database and return a list of matching database entries. Additionally, the
-`search_id` function provides a more direct interface for loading a specific
+`aaindex_by_id` function provides a more direct interface for loading a specific
 entry.
 
 ```julia-repl
