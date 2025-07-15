@@ -49,12 +49,6 @@ struct Index <: AbstractAAIndex
     metadata::Metadata
 end
 
-struct IndexSerialization
-    data::Vector{Float64}
-    correlation::Dict{String, Real}
-    metadata::Metadata
-end
-
 """
 An amino acid mutation and contact potential matrix is __generally__ 20 x 20
 numerical values representing similarity of amino acids.
