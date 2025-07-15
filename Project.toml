@@ -1,7 +1,7 @@
 name = "AAindex"
 uuid = "1cd36ffe-cb05-4761-9ff9-f7bc1999e190"
 authors = ["Jonathan Chen <jwhc@ucla.edu>"]
-version = "0.4.0"
+version = "0.3.0"
 
 [deps]
 BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
