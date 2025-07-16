@@ -110,8 +110,28 @@ sequence_to_amino_acids(sequence::AbstractVector{Char}) =
 sequence_to_amino_acids(sequence::AbstractString) =
     sequence_to_amino_acids(collect(sequence))
 
-sequence_to_amino_acids(sequence::AbstractVector{<:AbstractString}) =
-    [AMINO_ACID_FROM_THREE_LETTER[uppercase(aa)] for aa in sequence]
+"""
+    sequence_to_amino_acids(sequence)
+
+Converts a sequence of amino acids into a vector of amino acids. Sequence can
+be provided as a vector of strings (three-letter codes), or a vector of strings
+(single-letter codes).
+"""
+function sequence_to_amino_acids(sequence::AbstractVector{<:AbstractString})
+    aas = AminoAcid[]
+
+    for aa in sequence
+        if length(aa) == 3
+            push!(aas, AMINO_ACID_FROM_THREE_LETTER[uppercase(aa)])
+        elseif length(aa) == 1
+            push!(aas, AminoAcid(only(aa)))
+        else
+            throw(ArgumentError("sequence must be a vector of strings of length 1 or 3"))
+        end
+    end
+
+    return aas
+end
 
 """
     transform(index::Index, sequence)
@@ -136,6 +156,9 @@ julia> transform(index, ["ALA", "ARG", "ASN"])
 
 julia> transform(index, ["Ala", "Arg", "Asn"])
 [1.8, -4.5, -3.5]
+
+julia> transform(index, ["A", "Arg", "n"])
+[1.1, -5.1, -3.5]
 ```
 """
 transform(index::Index, sequence::AbstractVector{AminoAcid}) =
@@ -143,3 +166,4 @@ transform(index::Index, sequence::AbstractVector{AminoAcid}) =
 
 transform(index::Index, sequence::Any) =
     transform(index, sequence_to_amino_acids(sequence))
+
