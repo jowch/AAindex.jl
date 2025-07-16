@@ -101,7 +101,32 @@ julia> transform(index, "ARN")
  -3.5
 ```
 
+You can use the `transform` function to calculate the average value of an index
+over a sequence.
+
+```julia-repl
+julia> using Statistics
+
+julia> transform(index, ["Ala", "Arg", "Asn"]) |> mean
+-2.5
+```
+
+You can also define your own functions to calculate properties of a sequence. For example, here is a function that calculates the GRAVY (Grand Average of Hydropathy) metric of a sequence.
+
+```julia-repl
+julia> function gravy(sequence)
+    # use the Kyte-Doolittle hydropathy index
+    index = aaindex_by_id("KYTJ820101")
+    hydropathies = transform(index, sequence)
+
+    sum(hydropathies) / length(sequence)
+end
+
+julia> gravy("LLGDFFRKSKEKIGKEFKRIVQRIKDFLRNLVPRTES")
+-0.7243243243243245
+```
+
 ## References
 
 Kawashima, S., & Kanehisa, M. (2000). AAindex: amino acid index database.
-Nucleic acids research, 28(1), 374. https://doi.org/10.1093/nar/28.1.374
+Nucleic acids research, 28(1), 374. [https://doi.org/10.1093/nar/28.1.374](https://doi.org/10.1093/nar/28.1.374)
