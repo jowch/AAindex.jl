@@ -121,4 +121,28 @@
         @test occursin("20×20", rich)
         @test !occursin("AMatrix(", rich)
     end
+
+    @testset "AMatrix indexing" begin
+        parsed = AAindex.parse(test_a2)   # rows/cols = ARNDCQEGHILKMFPSTWYV
+
+        @test size(parsed) == (20, 20)
+        @test parsed[1, 1] == 3.0
+        @test parsed[2, 1] == -3.0
+
+        # indexing by amino acid resolves positions via rowids / columnids
+        @test parsed[AAindex.AminoAcid('A'), AAindex.AminoAcid('A')] == 3.0
+        @test parsed[AAindex.AminoAcid('R'), AAindex.AminoAcid('A')] == -3.0
+        # both triangles filled, so the lookup is symmetric
+        @test parsed[AAindex.AminoAcid('A'), AAindex.AminoAcid('R')] == -3.0
+
+        # a label not present in the matrix is an error
+        small = AAindex.parse(test_matrix_with_missing)   # rows/cols = AR
+        @test_throws ArgumentError small[
+            AAindex.AminoAcid('N'), AAindex.AminoAcid('A')
+        ]
+        # the column label is checked too, not only the row label
+        @test_throws ArgumentError small[
+            AAindex.AminoAcid('A'), AAindex.AminoAcid('N')
+        ]
+    end
 end

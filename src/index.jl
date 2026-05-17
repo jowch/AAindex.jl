@@ -214,3 +214,24 @@ function Base.show(io::IO, ::MIME"text/plain", matrix::AMatrix)
           " matrix (rows: ", matrix.rowids, ", cols: ", matrix.columnids, ")")
 end
 
+# --- AMatrix indexing ------------------------------------------------------
+
+Base.size(matrix::AMatrix) = size(matrix.data)
+
+Base.getindex(matrix::AMatrix, i::Integer, j::Integer) = matrix.data[i, j]
+
+function Base.getindex(matrix::AMatrix, row::AminoAcid, column::AminoAcid)
+    # rowids / columnids are raw strings from the record header and are not
+    # guaranteed to be standard amino-acid labels, so a missing label is an error.
+    i = findfirst(==(Char(row)), matrix.rowids)
+    j = findfirst(==(Char(column)), matrix.columnids)
+    isnothing(i) && throw(ArgumentError(
+        "row label $row is not present in this matrix (rows: $(matrix.rowids))"
+    ))
+    isnothing(j) && throw(ArgumentError(
+        "column label $column is not present in this matrix " *
+        "(cols: $(matrix.columnids))"
+    ))
+    matrix.data[i, j]
+end
+
