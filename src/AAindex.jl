@@ -11,7 +11,6 @@ module AAindex
 using CSV
 using DataDeps
 using DataFrames
-using StaticArrays
 
 import Base: getindex
 

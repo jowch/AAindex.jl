@@ -8,12 +8,10 @@ BioSequences = "7e6ae17a-c86d-528c-b3b9-7f778a29fe59"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataDeps = "124859b0-ceae-595e-8997-d05f6a7a8dfe"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
 BioSequences = "3.4"
 CSV = "0.10.15"
 DataDeps = "0.7"
 DataFrames = "1.7.0"
-StaticArrays = "0.12, 1.0"
 julia = "1.11"
