@@ -81,19 +81,25 @@ end
 
 
 function _parse_matrix(data::AbstractString)
-    header_idx = findfirst(r"^[A-Za-z\s\-=,]+\s", data)
-    header, data = data[header_idx], data[header_idx.stop+1:end]
-    rowids, columnids = [header[idx] for idx in findall(r"[A-Z\-]+", header)]
+    # The M-tag value documents its axes as "rows = ... cols = ...". Anchor on
+    # that format and capture both axis-label strings; continuation lines have
+    # already been folded into one whitespace-joined string by `parse`.
+    header = match(r"rows\s*=\s*([A-Z\-]+).*?cols\s*=\s*([A-Z\-]+)"s, data)
+    isnothing(header) && throw(ArgumentError(
+        "matrix record header does not match the expected " *
+        "\"rows = ... cols = ...\" format"
+    ))
+    rowids, columnids = String.(header.captures)
 
-    # A token is parsed value-by-value rather than with a regex substitution:
-    # a lone "-" (or "NA") marks a missing value, and splitting first avoids
-    # the boundary/adjacency hazards of rewriting whitespace-delimited markers.
-    tokens = split(data, r"\s+", keepempty=false)
+    # Everything after the matched header is the value block. Matrix records are
+    # ASCII, so a code-unit offset is also a valid character index.
+    value_text = data[(header.offset + ncodeunits(header.match)):end]
 
-    values = Float64[]
-    for token in tokens
+    # A lone "-" (or "NA") marks a missing value.
+    values = Union{Missing,Float64}[]
+    for token in split(value_text, r"\s+", keepempty=false)
         if token == "-" || token == "NA"
-            push!(values, NaN)
+            push!(values, missing)
         else
             value = tryparse(Float64, token)
             isnothing(value) || push!(values, value)
@@ -101,29 +107,31 @@ function _parse_matrix(data::AbstractString)
     end
 
     m, n = length(rowids), length(columnids)
-    data = zeros(m, n)
+    triangular = m * (m + 1) ÷ 2
 
-    # check if matrix is lower triangular
-    if length(values) < m * n
-        indices = [(x, y) for x in 1:m for y in 1:x]
-
-        for (k, (i, j)) in enumerate(indices)
-            data[i, j] = values[k]
+    if m == n && length(values) == triangular
+        matrix = Matrix{Union{Missing,Float64}}(undef, m, m)
+        k = 1
+        for i in 1:m, j in 1:i
+            matrix[i, j] = values[k]
+            matrix[j, i] = values[k]   # fill both triangles
+            k += 1
         end
-
-        data = SHermitianCompact{m}(data)
+    elseif length(values) == m * n
+        matrix = Matrix{Union{Missing,Float64}}(undef, m, n)
+        k = 1
+        for i in 1:m, j in 1:n
+            matrix[i, j] = values[k]
+            k += 1
+        end
     else
-        indices = [(x, y) for x in 1:m for y in 1:n]
-
-        for (k, (i, j)) in enumerate(indices)
-            data[i, j] = values[k]
-        end
-
-        data = SMatrix{m,n}(data)
+        throw(ArgumentError(
+            "matrix has $(length(values)) values, which matches neither a full " *
+            "$m×$n matrix ($(m * n)) nor a lower-triangular one ($triangular)"
+        ))
     end
 
-
-    return rowids, columnids, data
+    return rowids, columnids, matrix
 end
 
 

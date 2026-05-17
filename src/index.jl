@@ -95,11 +95,7 @@ Each entry has the following format:
 struct AMatrix <: AbstractAAIndex
     rowids::String
     columnids::String
-    # The container shape varies (lower-triangular vs. full), but the element
-    # type is always Float64; pinning it keeps the field as concrete as the
-    # shape variation allows.
-    data::Union{SHermitianCompact{N,Float64} where N,
-                SMatrix{M,N,Float64} where {M,N}}
+    data::Matrix{Union{Missing,Float64}}
     metadata::Metadata
 end
 
