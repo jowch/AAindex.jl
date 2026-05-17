@@ -59,4 +59,12 @@
         # an uninterpretable code is an error
         @test_throws ArgumentError index["XX"]
     end
+
+    @testset "transform propagates missing values" begin
+        with_na = AAindex.parse(test_index_with_na)   # NA in the R/K column
+        result = transform(with_na, "AR")
+        @test result isa Vector{Union{Missing,Float64}}
+        @test result[1] == 4.35
+        @test ismissing(result[2])
+    end
 end

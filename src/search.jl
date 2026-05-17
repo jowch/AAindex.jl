@@ -29,9 +29,9 @@ end
 """
     search(term::AbstractString)
 
-Search for AAindex entries by term based on id and description. Returns a list
-of `(id, description)` pairs that match the term, sorted by id with any exact
-id match first.
+Search for AAindex entries whose id, description, title, or authors contain
+`term` (case-insensitively). Returns a list of `(id, description)` pairs, sorted
+by id with any exact id match first.
 """
 search(term::AbstractString) = search(index(), term)
 
@@ -40,10 +40,30 @@ function search(index::Dict{String,Entry}, term::AbstractString)
     results = @NamedTuple{id::String, description::String}[]
 
     for (id, entry) in index
-        if id == term || occursin(needle, lowercase(entry.description))
+        if occursin(needle, lowercase(id)) ||
+           occursin(needle, lowercase(entry.description)) ||
+           occursin(needle, lowercase(entry.title)) ||
+           occursin(needle, lowercase(entry.authors))
             push!(results, (; id, description = entry.description))
         end
     end
 
-    sort!(results, by = r -> (r.id != term, r.id))
+    # an exact id match sorts first; compare case-insensitively to stay
+    # consistent with the case-insensitive matching above
+    sort!(results, by = r -> (lowercase(r.id) != needle, r.id))
 end
+
+"""
+    ids()
+
+Returns a sorted `Vector{String}` of every accession number in the index.
+"""
+ids() = sort!(collect(keys(index())))
+
+"""
+    search()
+
+Returns every entry as `(id, description)` pairs, sorted by id — the same result
+shape as `search(term)`.
+"""
+search() = search(index(), "")

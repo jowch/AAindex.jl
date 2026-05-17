@@ -18,7 +18,7 @@ export
 AbstractAAIndex, Metadata, Index, AMatrix,
 
 # Functions
-aaindex_by_id, search, transform
+aaindex_by_id, ids, search, transform
 
 # Note: `parse` is intentionally not exported. It is a distinct function from
 # `Base.parse` (not a method of it); exporting it would shadow `Base.parse` for

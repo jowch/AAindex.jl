@@ -43,4 +43,31 @@
         @test_throws "NOTANID000" aaindex_by_id("NOTANID000")
     end
 
+    @testset "ids lists every accession number" begin
+        all_ids = ids()
+        @test all_ids isa Vector{String}
+        @test issorted(all_ids)
+        @test "KYTJ820101" in all_ids
+        # the shipped v9.2 database has well over 500 entries
+        @test length(all_ids) > 500
+    end
+
+    @testset "no-argument search returns every entry" begin
+        @test length(search()) == length(ids())
+        @test issorted([r.id for r in search()])
+    end
+
+    @testset "search matches title and authors" begin
+        # an injected Dict makes the field-matching deterministic
+        testindex = Dict(
+            "AAAA000001" => AAindex.Entry(
+                "aaindex1", 0,
+                "a description", "a memorable title", "Ada Lovelace"
+            )
+        )
+        @test only(AAindex.search(testindex, "memorable")).id == "AAAA000001"
+        @test only(AAindex.search(testindex, "Lovelace")).id == "AAAA000001"
+        @test isempty(AAindex.search(testindex, "no-such-term"))
+    end
+
 end
