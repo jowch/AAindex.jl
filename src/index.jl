@@ -44,8 +44,8 @@ physico-chemical and biochemical properties of amino acids.
 
 """
 struct Index <: AbstractAAIndex
-    data::SVector{20}
-    correlation::Dict{String, AbstractFloat}
+    data::SVector{20, Float64}
+    correlation::Dict{String, Float16}
     metadata::Metadata
 end
 
@@ -133,6 +133,14 @@ function sequence_to_amino_acids(sequence::AbstractVector{<:AbstractString})
     return aas
 end
 
+# Fallback for inputs none of the methods above can interpret, so callers get
+# an actionable message instead of a bare `MethodError`.
+sequence_to_amino_acids(sequence) = throw(ArgumentError(
+    "cannot interpret a value of type $(typeof(sequence)) as an amino acid " *
+    "sequence; provide a String, a Vector{Char}, a Vector of one- or " *
+    "three-letter code strings, or a Vector{AminoAcid}"
+))
+
 """
     transform(index::Index, sequence)
 
@@ -143,13 +151,13 @@ a string of single-letter codes, or a vector of strings (three-letter codes).
 # Examples
 
 ```julia
-julia> index = aaindex_by_id("KYTJ820101")
+julia> index = aaindex_by_id("KYTJ820101");
 
 julia> transform(index, [AA_A, AA_R, AA_N])
 [1.8, -4.5, -3.5]
 
 julia> transform(index, "ARN")
-[1.8, 1.8, 1.8]
+[1.8, -4.5, -3.5]
 
 julia> transform(index, ["ALA", "ARG", "ASN"])
 [1.8, -4.5, -3.5]
@@ -158,7 +166,7 @@ julia> transform(index, ["Ala", "Arg", "Asn"])
 [1.8, -4.5, -3.5]
 
 julia> transform(index, ["A", "Arg", "n"])
-[1.1, -5.1, -3.5]
+[1.8, -4.5, -3.5]
 ```
 """
 transform(index::Index, sequence::AbstractVector{AminoAcid}) =
