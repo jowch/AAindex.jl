@@ -41,12 +41,18 @@ end
 """
 An amino acid index is a set of 20 numerical values representing various
 physico-chemical and biochemical properties of amino acids.
-
 """
 struct Index <: AbstractAAIndex
-    data::SVector{20, Float64}
-    correlation::Dict{String, Float16}
+    data::Vector{Union{Missing,Float64}}
+    correlation::Dict{String,Float16}
     metadata::Metadata
+
+    function Index(data, correlation, metadata)
+        length(data) == 20 || throw(ArgumentError(
+            "an Index requires exactly 20 amino acid values, got $(length(data))"
+        ))
+        new(data, correlation, metadata)
+    end
 end
 
 """

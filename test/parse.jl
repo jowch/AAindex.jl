@@ -8,6 +8,7 @@
 
     @testset "Parse Index" begin
         @test AAindex._parse_index(test_index) == test_index_result
+        @test AAindex._parse_index(test_index) isa Vector{Union{Missing,Float64}}
     end
 
     @testset "Parse Index rejects wrong length" begin
@@ -18,7 +19,7 @@
         parsed = AAindex.parse(test_a1)
 
         @test parsed isa AAindex.Index
-        @test parsed.metadata.id == AAindex.parse_id(test_a1)
+        @test parsed.metadata.id == "ANDN920101"
         @test parsed.data == test_index_result
     end
 
@@ -27,7 +28,8 @@
 
         @test parsed isa AAindex.Index
         # the R/K column, position 2, holds the NA
-        @test isnan(parsed.data[2])
+        @test ismissing(parsed.data[2])
+        @test parsed.data isa Vector{Union{Missing,Float64}}
     end
 
     @testset "Parse index without correlations" begin

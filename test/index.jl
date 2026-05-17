@@ -2,7 +2,8 @@
     index = aaindex_by_id("KYTJ820101")
 
     @testset "field types are concrete" begin
-        @test index.data isa AAindex.SVector{20,Float64}
+        @test index.data isa Vector{Union{Missing,Float64}}
+        @test fieldtype(AAindex.Index, :data) == Vector{Union{Missing,Float64}}
         @test index.correlation isa Dict{String,Float16}
         @test fieldtype(AAindex.Metadata, :reference) == Vector{String}
     end

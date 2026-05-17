@@ -58,20 +58,25 @@ end
 
 
 function _parse_index(data::AbstractString)
-    data = replace(data, "NA" => "NaN")
     tokens = split(data, r"\s+", keepempty=false)
 
-    values = Float64[]
+    # An "NA" token is a missing value; a numeric token is its parsed Float64;
+    # anything else (e.g. the "A/L" header labels) is skipped.
+    values = Union{Missing,Float64}[]
     for token in tokens
-        value = tryparse(Float64, token)
-        isnothing(value) || push!(values, value)
+        if token == "NA"
+            push!(values, missing)
+        else
+            value = tryparse(Float64, token)
+            isnothing(value) || push!(values, value)
+        end
     end
 
     length(values) == 20 || throw(ArgumentError(
         "expected 20 amino acid index values, parsed $(length(values))"
     ))
 
-    SVector{20,Float64}(values)
+    values
 end
 
 
