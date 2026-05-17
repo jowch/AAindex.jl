@@ -41,12 +41,18 @@ end
 """
 An amino acid index is a set of 20 numerical values representing various
 physico-chemical and biochemical properties of amino acids.
-
 """
 struct Index <: AbstractAAIndex
-    data::SVector{20, Float64}
-    correlation::Dict{String, Float16}
+    data::Vector{Union{Missing,Float64}}
+    correlation::Dict{String,Float16}
     metadata::Metadata
+
+    function Index(data, correlation, metadata)
+        length(data) == 20 || throw(ArgumentError(
+            "an Index requires exactly 20 amino acid values, got $(length(data))"
+        ))
+        new(data, correlation, metadata)
+    end
 end
 
 """
@@ -89,17 +95,21 @@ Each entry has the following format:
 struct AMatrix <: AbstractAAIndex
     rowids::String
     columnids::String
-    # The container shape varies (lower-triangular vs. full), but the element
-    # type is always Float64; pinning it keeps the field as concrete as the
-    # shape variation allows.
-    data::Union{SHermitianCompact{N,Float64} where N,
-                SMatrix{M,N,Float64} where {M,N}}
+    data::Matrix{Union{Missing,Float64}}
     metadata::Metadata
 end
 
 function Base.getindex(index::Index, aa::AminoAcid)
     index.data[AMINO_ACID_TO_INDEX[aa]]
 end
+
+# Index by one-letter Char or by a one- or three-letter code string, reusing the
+# conversion logic that `transform` already accepts.
+Base.getindex(index::Index, code::Char) =
+    index[only(sequence_to_amino_acids([code]))]
+
+Base.getindex(index::Index, code::AbstractString) =
+    index[only(sequence_to_amino_acids([code]))]
 
 """
     sequence_to_amino_acids(sequence)
@@ -178,4 +188,58 @@ transform(index::Index, sequence::AbstractVector{AminoAcid}) =
 
 transform(index::Index, sequence::Any) =
     transform(index, sequence_to_amino_acids(sequence))
+
+# --- Display ---------------------------------------------------------------
+
+Base.show(io::IO, metadata::Metadata) = print(io, "Metadata ", metadata.id)
+
+function Base.show(io::IO, ::MIME"text/plain", metadata::Metadata)
+    println(io, "Metadata ", metadata.id)
+    println(io, "  description: ", metadata.description)
+    println(io, "  authors:     ", metadata.authors)
+    print(io,   "  journal:     ", metadata.journal)
+end
+
+Base.show(io::IO, index::Index) = print(io, "Index ", index.metadata.id)
+
+function Base.show(io::IO, ::MIME"text/plain", index::Index)
+    println(io, "Index ", index.metadata.id)
+    println(io, "  ", index.metadata.description)
+    println(io, "  values:")
+    for (aa, value) in zip(AMINO_ACIDS, index.data)
+        println(io, "    ", aa, " => ", value)
+    end
+    n = length(index.correlation)
+    print(io, "  ", n, n == 1 ? " correlated entry" : " correlated entries")
+end
+
+Base.show(io::IO, matrix::AMatrix) = print(io, "AMatrix ", matrix.metadata.id)
+
+function Base.show(io::IO, ::MIME"text/plain", matrix::AMatrix)
+    println(io, "AMatrix ", matrix.metadata.id)
+    println(io, "  ", matrix.metadata.description)
+    print(io, "  ", size(matrix.data, 1), "×", size(matrix.data, 2),
+          " matrix (rows: ", matrix.rowids, ", cols: ", matrix.columnids, ")")
+end
+
+# --- AMatrix indexing ------------------------------------------------------
+
+Base.size(matrix::AMatrix) = size(matrix.data)
+
+Base.getindex(matrix::AMatrix, i::Integer, j::Integer) = matrix.data[i, j]
+
+function Base.getindex(matrix::AMatrix, row::AminoAcid, column::AminoAcid)
+    # rowids / columnids are raw strings from the record header and are not
+    # guaranteed to be standard amino-acid labels, so a missing label is an error.
+    i = findfirst(==(Char(row)), matrix.rowids)
+    j = findfirst(==(Char(column)), matrix.columnids)
+    isnothing(i) && throw(ArgumentError(
+        "row label $row is not present in this matrix (rows: $(matrix.rowids))"
+    ))
+    isnothing(j) && throw(ArgumentError(
+        "column label $column is not present in this matrix " *
+        "(cols: $(matrix.columnids))"
+    ))
+    matrix.data[i, j]
+end
 

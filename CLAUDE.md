@@ -34,11 +34,11 @@ CSV index providing random access by accession number.
 
 - `src/init.jl` — `__init__` registers the `AAindex` DataDep (download URLs + SHA256s).
   On first load it builds `index.csv` if absent, then assigns the module-global `INDEX`
-  (a `DataFrame`). The registry-CI branch skips all of this.
+  (a `Dict{String,Entry}`). The registry-CI branch skips all of this.
 - `src/data.jl` — `build_index` walks each `aaindexN` file, recording each entry's
   byte `position`; `load_entry` seeks to that position and parses just that record.
   This avoids holding the whole database in memory.
-- `src/parse.jl` — `parse(record::String)` turns one raw record into an `Index` or
+- `src/parse.jl` — `parse(record::AbstractString)` turns one raw record into an `Index` or
   `AMatrix`. AAindex records are tag-prefixed lines (`H`, `D`, `R`, `A`, `T`, `J`, `C`,
   `I`, `M`, `*`); continuation lines start with whitespace and are folded into the
   preceding tag's value. `I` → `Index`, `M` → `AMatrix`.
@@ -46,15 +46,16 @@ CSV index providing random access by accession number.
   looking up a value by `AminoAcid`, and `transform` (maps an amino-acid sequence to a
   vector of index values). `sequence_to_amino_acids` accepts single-letter strings,
   three-letter codes, `Char` vectors, or `AminoAcid` vectors.
-- `src/search.jl` — `search` and `aaindex_by_id` query the in-memory `INDEX` DataFrame.
+- `src/search.jl` — `search` and `aaindex_by_id` query the in-memory `INDEX` Dict.
 
 ### Key conventions
 
 - The canonical amino-acid order is `ARNDCQEGHILKMFPSTWYV` (`AMINO_ACIDS` in `index.jl`);
-  `Index.data` is a 20-element `SVector` in that order.
-- `AMatrix` data is stored as `SHermitianCompact` when the record gives a lower-triangle
-  matrix, otherwise `SMatrix`. Row/column identities are raw strings from the record
-  header and are not guaranteed to be standard amino-acid labels.
+  `Index.data` is a 20-element `Vector{Union{Missing,Float64}}` in that order.
+- `AMatrix.data` is a `Matrix{Union{Missing,Float64}}`; a lower-triangular record is
+  expanded into a full matrix with both triangles filled. Row/column identities are
+  raw strings from the record header and are not guaranteed to be standard
+  amino-acid labels.
 - `AAindex.parse` is intentionally *not* exported — it is a distinct function from
   `Base.parse`, not a method of it, so exporting it would shadow `Base.parse`.
 

@@ -9,7 +9,7 @@ function is_key(candidate::AbstractString)::Bool
 end
 
 """
-    aaindex_by_id(id::String)
+    aaindex_by_id(id::AbstractString)
 
 Load an AAindex entry by its accession number.
 
@@ -19,46 +19,51 @@ unchanged.
 """
 aaindex_by_id(id::AbstractString) = aaindex_by_id(index(), id)
 
-function aaindex_by_id(index::DataFrame, id::AbstractString)
-    matches = subset(index, :id => ByRow(==(id)))
-
-    if nrow(matches) != 1
-        throw(ArgumentError("$id is not a valid AAindex identifier"))
-    end
-
+function aaindex_by_id(index::Dict{String,Entry}, id::AbstractString)
+    haskey(index, id) || throw(ArgumentError(
+        "$id is not a valid AAindex identifier"
+    ))
     load_entry(index, id)
 end
-
 
 """
     search(term::AbstractString)
 
-Search for AAindex entries by term based on id and description. Returns a list
-of `(id, description)` pairs that match the term, sorted by id with any exact
-id match first.
+Search for AAindex entries whose id, description, title, or authors contain
+`term` (case-insensitively). Returns a list of `(id, description)` pairs, sorted
+by id with any exact id match first.
 """
 search(term::AbstractString) = search(index(), term)
 
-function search(index::DataFrame, term::AbstractString)
-    match_indices = Set{Int}()
-
-    for (i, id) in enumerate(index.id)
-        if id == term
-            push!(match_indices, i)
-        end
-    end
-
+function search(index::Dict{String,Entry}, term::AbstractString)
     needle = lowercase(term)
-    for (i, description) in enumerate(index.description)
-        if occursin(needle, lowercase(description))
-            push!(match_indices, i)
+    results = @NamedTuple{id::String, description::String}[]
+
+    for (id, entry) in index
+        if occursin(needle, lowercase(id)) ||
+           occursin(needle, lowercase(entry.description)) ||
+           occursin(needle, lowercase(entry.title)) ||
+           occursin(needle, lowercase(entry.authors))
+            push!(results, (; id, description = entry.description))
         end
     end
 
-    results = [
-        (; id = index[i, :id], description = index[i, :description])
-        for i in match_indices
-    ]
-
-    sort!(results, by = r -> (r.id != term, r.id))
+    # an exact id match sorts first; compare case-insensitively to stay
+    # consistent with the case-insensitive matching above
+    sort!(results, by = r -> (lowercase(r.id) != needle, r.id))
 end
+
+"""
+    ids()
+
+Returns a sorted `Vector{String}` of every accession number in the index.
+"""
+ids() = sort!(collect(keys(index())))
+
+"""
+    search()
+
+Returns every entry as `(id, description)` pairs, sorted by id — the same result
+shape as `search(term)`.
+"""
+search() = search(index(), "")
