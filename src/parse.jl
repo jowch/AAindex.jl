@@ -7,7 +7,7 @@ Parses the given AAindex `record` (the raw text of one database entry) into an
 Throws an `ArgumentError` if the record contains neither an `I` (index) nor an
 `M` (matrix) section.
 """
-function parse(record::String)
+function parse(record::AbstractString)
     pairs = Dict{Char,Any}()
     lines = map(String, split(record, '\n', keepempty=false))
 
@@ -49,11 +49,6 @@ function parse(record::String)
             "nor an M (matrix) section"
         ))
     end
-end
-
-
-function parse_id(record::String)::String
-    only(match(r"(\w{4}\d{6})", record).captures)
 end
 
 
