@@ -4,6 +4,7 @@
     @testset "field types are concrete" begin
         @test index.data isa AAindex.SVector{20,Float64}
         @test index.correlation isa Dict{String,Float16}
+        @test fieldtype(AAindex.Metadata, :reference) == Vector{String}
     end
 
     @testset "getindex by amino acid" begin

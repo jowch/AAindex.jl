@@ -61,6 +61,25 @@
         @test parsed.data[1, 2] == 1.26
     end
 
+    @testset "Parse matrix with a missing value" begin
+        parsed = AAindex.parse(test_matrix_with_missing)
+
+        @test parsed isa AAindex.AMatrix
+        @test parsed.data isa AAindex.SMatrix
+        @test parsed.data[1, 1] == 1.0
+        # a lone "-" marks a missing value
+        @test isnan(parsed.data[1, 2])
+        @test parsed.data[2, 1] == 3.0
+        @test parsed.data[2, 2] == 4.0
+    end
+
+    @testset "AMatrix.data is concretely typed" begin
+        # the element type is pinned even though the container shape varies
+        @test fieldtype(AAindex.AMatrix, :data) ==
+            Union{AAindex.SHermitianCompact{N,Float64} where N,
+                  AAindex.SMatrix{M,N,Float64} where {M,N}}
+    end
+
     @testset "parse is not exported (does not shadow Base.parse)" begin
         @test !(:parse in names(AAindex))
         # still reachable as a qualified name

@@ -22,7 +22,13 @@ function build_index(
 
             while !eof(io)
                 entry = readuntil(io, "//\n")
-                record = parse(entry)
+                record = try
+                    parse(entry)
+                catch err
+                    error("failed to parse the entry at position " *
+                          "$entry_position in $database_file: " *
+                          sprint(showerror, err))
+                end
 
                 push!(entry_records, (;
                     aaindex = database_file,
@@ -56,7 +62,7 @@ end
 
 Loads the entry with the given id from the index.
 """
-load_entry(id::AbstractString) = load_entry(INDEX[], id)
+load_entry(id::AbstractString) = load_entry(index(), id)
 
 function load_entry(index::DataFrame, id::AbstractString)
     record = only(subset(index, :id => ByRow(==(id))))

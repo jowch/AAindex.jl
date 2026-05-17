@@ -31,7 +31,7 @@ Each entry has the following format:
 struct Metadata
     id::String
     description::String
-    reference::Array{String}
+    reference::Vector{String}
     journal::String
     title::String
     authors::String
@@ -89,7 +89,11 @@ Each entry has the following format:
 struct AMatrix <: AbstractAAIndex
     rowids::String
     columnids::String
-    data::Union{SHermitianCompact, SMatrix}
+    # The container shape varies (lower-triangular vs. full), but the element
+    # type is always Float64; pinning it keeps the field as concrete as the
+    # shape variation allows.
+    data::Union{SHermitianCompact{N,Float64} where N,
+                SMatrix{M,N,Float64} where {M,N}}
     metadata::Metadata
 end
 

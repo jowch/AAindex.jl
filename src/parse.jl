@@ -1,6 +1,3 @@
-
-const ENTRY_SYMBOLS = "HDRATJCIM*"
-
 """
     parse(record)
 
@@ -10,7 +7,7 @@ Parses the given AAindex `record` (the raw text of one database entry) into an
 Throws an `ArgumentError` if the record contains neither an `I` (index) nor an
 `M` (matrix) section.
 """
-function parse(record::String)::AbstractAAIndex
+function parse(record::String)
     pairs = Dict{Char,Any}()
     lines = map(String, split(record, '\n', keepempty=false))
 
@@ -83,11 +80,20 @@ function _parse_matrix(data::AbstractString)
     header, data = data[header_idx], data[header_idx.stop+1:end]
     rowids, columnids = [header[idx] for idx in findall(r"[A-Z\-]+", header)]
 
-    data = replace(data, "NA" => "NaN")
-    data = replace(data, r"\s-\s" => "NaN")
-    data = split(data, r"\s+", keepempty=false)
+    # A token is parsed value-by-value rather than with a regex substitution:
+    # a lone "-" (or "NA") marks a missing value, and splitting first avoids
+    # the boundary/adjacency hazards of rewriting whitespace-delimited markers.
+    tokens = split(data, r"\s+", keepempty=false)
 
-    values = filter(x -> !isnothing(x), map(x -> tryparse(Float64, x), data))
+    values = Float64[]
+    for token in tokens
+        if token == "-" || token == "NA"
+            push!(values, NaN)
+        else
+            value = tryparse(Float64, token)
+            isnothing(value) || push!(values, value)
+        end
+    end
 
     m, n = length(rowids), length(columnids)
     data = zeros(m, n)

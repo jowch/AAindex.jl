@@ -2,6 +2,21 @@
 # keeps lookups type-stable (a non-const global would not be).
 const INDEX = Ref{DataFrame}()
 
+"""
+    index()
+
+Returns the package-wide index of AAindex entries. The index is loaded
+automatically by `__init__` when the package is imported; this accessor
+raises a clear error if it is somehow accessed before then.
+"""
+function index()
+    isassigned(INDEX) || error(
+        "the AAindex index has not been loaded; it is normally loaded " *
+        "automatically when AAindex is imported"
+    )
+    INDEX[]
+end
+
 function __init__()
     if get(ENV, "JULIA_REGISTRYCI_AUTOMERGE", "false") == "true"
         # Do not trigger or require download here
