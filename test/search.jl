@@ -17,9 +17,23 @@
         @test description == expected_description
 
         result = aaindex_by_id(id)
-        
+
         @test result isa AAindex.AMatrix
         @test result.metadata.description == expected_description
+    end
+
+    @testset "search returns results in a deterministic, sorted order" begin
+        results = search("hydrophobicity")
+        ids = [r.id for r in results]
+
+        @test issorted(ids)
+        @test ids == [r.id for r in search("hydrophobicity")]
+    end
+
+    @testset "aaindex_by_id rejects unknown ids" begin
+        @test_throws ArgumentError aaindex_by_id("NOTANID000")
+        # the error message should name the offending id
+        @test_throws "NOTANID000" aaindex_by_id("NOTANID000")
     end
 
 end
