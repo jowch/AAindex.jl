@@ -135,3 +135,48 @@ M rows = ARNDCQEGHILKMFPSTWYV, cols = ARNDCQEGHILKMFPSTWYV
   -0.88 -0.20 -0.29 0.14 -1.31  0.09 0.71 -0.56 -0.57 -1.66 -1.38  1.40 -1.60 -1.97 -0.73 -0.32 -0.37  -1.40 -0.96 -1.38
   -1.74  0.85  0.24 0.72 -2.25  0.45 0.81 -1.29 -0.24 -2.46 -2.38  0.37 -1.21 -2.16 -1.00 -0.10 -0.57  -1.34 -1.52 -2.31
 """
+
+# A complete index record containing a missing value (NA).
+test_index_with_na = """
+H TEST000001
+D test entry with a missing value
+R LIT:0 PMID:0
+A Tester
+T A test entry
+J Test Journal
+C BUNA790102    0.949
+I    A/L     R/K     N/M     D/F     C/P     Q/S     E/T     G/W     H/Y     I/V
+    4.35    NA      4.75    4.76    4.65    4.37    4.29    3.97    4.63    3.95
+    4.17    4.36    4.52    4.66    4.44    4.50    4.35    4.70    4.60    3.95
+//
+"""
+
+# A complete index record with no C (correlation) section.
+test_index_no_c = """
+H TEST000002
+D test entry without correlations
+R LIT:0 PMID:0
+A Tester
+T A test entry
+J Test Journal
+I    A/L     R/K     N/M     D/F     C/P     Q/S     E/T     G/W     H/Y     I/V
+    4.35    4.38    4.75    4.76    4.65    4.37    4.29    3.97    4.63    3.95
+    4.17    4.36    4.52    4.66    4.44    4.50    4.35    4.70    4.60    3.95
+//
+"""
+
+# A record with neither an I (index) nor M (matrix) section.
+test_no_data_record = """
+H TEST000003
+D record with no data section
+R LIT:0 PMID:0
+A Tester
+T A test entry
+J Test Journal
+//
+"""
+
+# A complete matrix record whose data is a full (non-triangular) matrix.
+test_full_matrix_record =
+    "H TEST000004\nD full matrix entry\nR PMID:0\nA Tester\n" *
+    "T A test entry\nJ Test Journal\n" * test_non_triangular_matrix * "//\n"
