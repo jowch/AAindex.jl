@@ -10,7 +10,6 @@ module AAindex
 
 using CSV
 using DataDeps
-using DataFrames
 
 import Base: getindex
 

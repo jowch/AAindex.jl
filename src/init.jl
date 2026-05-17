@@ -1,6 +1,18 @@
+"""
+A row of the package-wide index: where a record lives on disk plus the metadata
+fields needed to search for it without re-reading the database file.
+"""
+struct Entry
+    aaindex::String      # which database file the record lives in
+    position::Int        # byte offset of the record within that file
+    description::String
+    title::String
+    authors::String
+end
+
 # The package-wide index of entries, populated by `__init__`. A `const` `Ref`
 # keeps lookups type-stable (a non-const global would not be).
-const INDEX = Ref{DataFrame}()
+const INDEX = Ref{Dict{String,Entry}}()
 
 """
     index()
