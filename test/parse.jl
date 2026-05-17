@@ -60,4 +60,10 @@
         @test parsed.data[1, 1] == -0.94
         @test parsed.data[1, 2] == 1.26
     end
+
+    @testset "parse is not exported (does not shadow Base.parse)" begin
+        @test !(:parse in names(AAindex))
+        # still reachable as a qualified name
+        @test AAindex.parse(test_a1) isa AAindex.Index
+    end
 end
