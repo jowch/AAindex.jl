@@ -63,8 +63,8 @@ respective interfaces:
 
 ```julia-repl
 struct Index <: AbstractAAIndex
-    data::SVector{20}
-    correlation::Dict{String, AbstractFloat}
+    data::SVector{20, Float64}
+    correlation::Dict{String, Float16}
     metadata::Metadata
 end
 
