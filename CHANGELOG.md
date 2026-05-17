@@ -13,18 +13,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `using AAindex`. Call it as `AAindex.parse`.
 - `Index.data` is now typed `SVector{20, Float64}` and `Index.correlation` is
   now `Dict{String, Float16}`, replacing the previous abstract element types.
+  `Metadata.reference` is now `Vector{String}` and `AMatrix.data`'s element
+  type is pinned to `Float64`, completing the move to concrete field types.
 - `search` now returns results in a deterministic order (sorted by id, with any
   exact id match first).
 - The package-wide index is held in a `const Ref`, making `search` and
   `aaindex_by_id` lookups type-stable.
+- `is_key` now requires an exact (anchored) match and accepts any
+  `AbstractString` rather than only `String`.
 
 ### Fixed
 - `aaindex_by_id` no longer masks unrelated errors as "invalid identifier"; only
   genuinely unknown ids raise an `ArgumentError`.
 - `parse` raises an `ArgumentError` for records with no `I`/`M` section instead
   of failing with a `convert` error, and tolerates entries with missing tags.
+- `parse` no longer carries an abstract `::AbstractAAIndex` return annotation,
+  so callers can infer the concrete `Union{Index, AMatrix}`.
 - `_parse_index` validates that exactly 20 values were parsed.
 - `_parse_correlations` no longer reads past the end of an odd token list.
+- Matrix parsing correctly handles a lone `-` missing-value marker; it
+  previously consumed surrounding whitespace and corrupted neighbouring values.
+- `build_index` reports the source file and offset of an entry that fails to
+  parse, and accessing the index before it is loaded raises a clear error
+  rather than an `UndefRefError`.
 
 ## [0.3.0]
 
