@@ -181,3 +181,36 @@ transform(index::Index, sequence::AbstractVector{AminoAcid}) =
 transform(index::Index, sequence::Any) =
     transform(index, sequence_to_amino_acids(sequence))
 
+# --- Display ---------------------------------------------------------------
+
+Base.show(io::IO, metadata::Metadata) = print(io, "Metadata ", metadata.id)
+
+function Base.show(io::IO, ::MIME"text/plain", metadata::Metadata)
+    println(io, "Metadata ", metadata.id)
+    println(io, "  description: ", metadata.description)
+    println(io, "  authors:     ", metadata.authors)
+    print(io,   "  journal:     ", metadata.journal)
+end
+
+Base.show(io::IO, index::Index) = print(io, "Index ", index.metadata.id)
+
+function Base.show(io::IO, ::MIME"text/plain", index::Index)
+    println(io, "Index ", index.metadata.id)
+    println(io, "  ", index.metadata.description)
+    println(io, "  values:")
+    for (aa, value) in zip(AMINO_ACIDS, index.data)
+        println(io, "    ", aa, " => ", value)
+    end
+    n = length(index.correlation)
+    print(io, "  ", n, n == 1 ? " correlated entry" : " correlated entries")
+end
+
+Base.show(io::IO, matrix::AMatrix) = print(io, "AMatrix ", matrix.metadata.id)
+
+function Base.show(io::IO, ::MIME"text/plain", matrix::AMatrix)
+    println(io, "AMatrix ", matrix.metadata.id)
+    println(io, "  ", matrix.metadata.description)
+    print(io, "  ", size(matrix.data, 1), "×", size(matrix.data, 2),
+          " matrix (rows: ", matrix.rowids, ", cols: ", matrix.columnids, ")")
+end
+

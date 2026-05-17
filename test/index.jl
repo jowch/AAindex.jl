@@ -29,4 +29,23 @@
     @testset "transform rejects unsupported sequence types" begin
         @test_throws ArgumentError transform(index, 123)
     end
+
+    @testset "show does not dump the raw struct" begin
+        @test sprint(show, index) == "Index KYTJ820101"
+
+        rich = sprint(show, MIME("text/plain"), index)
+        @test startswith(rich, "Index KYTJ820101")
+        @test occursin(index.metadata.description, rich)
+        # a raw struct dump would contain the constructor call / field types
+        @test !occursin("Index(", rich)
+        @test !occursin("Dict{", rich)
+
+        @test sprint(show, index.metadata) == "Metadata KYTJ820101"
+
+        rich_metadata = sprint(show, MIME("text/plain"), index.metadata)
+        @test occursin("KYTJ820101", rich_metadata)
+        @test !occursin("Metadata(", rich_metadata)
+        @test occursin(index.metadata.authors, rich_metadata)
+        @test occursin(index.metadata.journal, rich_metadata)
+    end
 end

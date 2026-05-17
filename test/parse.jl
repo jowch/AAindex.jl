@@ -111,4 +111,14 @@
         # still reachable as a qualified name
         @test AAindex.parse(test_a1) isa AAindex.Index
     end
+
+    @testset "AMatrix show does not dump the raw struct" begin
+        parsed = AAindex.parse(test_a2)
+        @test sprint(show, parsed) == "AMatrix ALTS910101"
+
+        rich = sprint(show, MIME("text/plain"), parsed)
+        @test occursin("ALTS910101", rich)
+        @test occursin("20×20", rich)
+        @test !occursin("AMatrix(", rich)
+    end
 end
