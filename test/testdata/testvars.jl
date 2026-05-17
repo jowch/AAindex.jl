@@ -180,3 +180,17 @@ J Test Journal
 test_full_matrix_record =
     "H TEST000004\nD full matrix entry\nR PMID:0\nA Tester\n" *
     "T A test entry\nJ Test Journal\n" * test_non_triangular_matrix * "//\n"
+
+# A matrix record with a lone "-" marking a missing value (data[1,2]).
+test_matrix_with_missing = """
+H TEST000005
+D matrix entry with a missing value
+R PMID:0
+A Tester
+T A test entry
+J Test Journal
+M rows = AR, cols = AR
+    1.0 -
+    3.0 4.0
+//
+"""
