@@ -5,6 +5,13 @@
         @test AAindex.is_key("CORJ870107")
         @test !AAindex.is_key("701078JROC")
         @test !AAindex.is_key("COJ80107")
+
+        # the match must be anchored: surrounding characters are not a key
+        @test !AAindex.is_key("CORJ870107XX")
+        @test !AAindex.is_key("XXCORJ870107")
+
+        # any AbstractString is accepted, not just String
+        @test AAindex.is_key(SubString("xCORJ870107", 2))
     end
 
     @testset "search" begin

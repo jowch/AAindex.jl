@@ -1,11 +1,11 @@
 """
     is_key(candidate)
 
-Checks if provided candidate key matches the format for AAindex accession
-numbers.
+Checks whether `candidate` is exactly an AAindex accession number (four word
+characters followed by six digits).
 """
-function is_key(candidate::String)::Bool
-    match(r"\w{4}\d{6}", candidate) !== nothing
+function is_key(candidate::AbstractString)::Bool
+    match(r"^\w{4}\d{6}$", candidate) !== nothing
 end
 
 """
@@ -17,7 +17,7 @@ Throws an `ArgumentError` if `id` is not present in the index. Errors raised
 while reading or parsing a valid entry are *not* masked — they propagate
 unchanged.
 """
-aaindex_by_id(id::AbstractString) = aaindex_by_id(INDEX[], id)
+aaindex_by_id(id::AbstractString) = aaindex_by_id(index(), id)
 
 function aaindex_by_id(index::DataFrame, id::AbstractString)
     matches = subset(index, :id => ByRow(==(id)))
@@ -37,7 +37,7 @@ Search for AAindex entries by term based on id and description. Returns a list
 of `(id, description)` pairs that match the term, sorted by id with any exact
 id match first.
 """
-search(term::AbstractString) = search(INDEX[], term)
+search(term::AbstractString) = search(index(), term)
 
 function search(index::DataFrame, term::AbstractString)
     match_indices = Set{Int}()
