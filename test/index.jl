@@ -48,4 +48,15 @@
         @test occursin(index.metadata.authors, rich_metadata)
         @test occursin(index.metadata.journal, rich_metadata)
     end
+
+    @testset "getindex by Char and String" begin
+        @test index['A'] == 1.8
+        @test index['R'] == -4.5
+        @test index["A"] == 1.8
+        @test index["ALA"] == 1.8
+        # case-insensitive, like transform
+        @test index["ala"] == 1.8
+        # an uninterpretable code is an error
+        @test_throws ArgumentError index["XX"]
+    end
 end

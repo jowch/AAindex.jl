@@ -103,6 +103,14 @@ function Base.getindex(index::Index, aa::AminoAcid)
     index.data[AMINO_ACID_TO_INDEX[aa]]
 end
 
+# Index by one-letter Char or by a one- or three-letter code string, reusing the
+# conversion logic that `transform` already accepts.
+Base.getindex(index::Index, code::Char) =
+    index[only(sequence_to_amino_acids([code]))]
+
+Base.getindex(index::Index, code::AbstractString) =
+    index[only(sequence_to_amino_acids([code]))]
+
 """
     sequence_to_amino_acids(sequence)
 
