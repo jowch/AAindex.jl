@@ -11,29 +11,36 @@ end
 """
     aaindex_by_id(id::String)
 
-Load an AAindex by its id.
+Load an AAindex entry by its accession number.
+
+Throws an `ArgumentError` if `id` is not present in the index. Errors raised
+while reading or parsing a valid entry are *not* masked — they propagate
+unchanged.
 """
-aaindex_by_id(id::AbstractString) = aaindex_by_id(INDEX, id)
+aaindex_by_id(id::AbstractString) = aaindex_by_id(INDEX[], id)
 
 function aaindex_by_id(index::DataFrame, id::AbstractString)
-    try
-        return load_entry(index, id)
-    catch
+    matches = subset(index, :id => ByRow(==(id)))
+
+    if nrow(matches) != 1
         throw(ArgumentError("$id is not a valid AAindex identifier"))
     end
+
+    load_entry(index, id)
 end
 
 
 """
     search(term::AbstractString)
 
-Search for AAindex entries by term based on id and description. Returns a list of
-ids and descriptions that match the term.
+Search for AAindex entries by term based on id and description. Returns a list
+of `(id, description)` pairs that match the term, sorted by id with any exact
+id match first.
 """
-search(term::AbstractString) = search(INDEX, term)
+search(term::AbstractString) = search(INDEX[], term)
 
 function search(index::DataFrame, term::AbstractString)
-    match_indices = Set()
+    match_indices = Set{Int}()
 
     for (i, id) in enumerate(index.id)
         if id == term
@@ -41,11 +48,17 @@ function search(index::DataFrame, term::AbstractString)
         end
     end
 
+    needle = lowercase(term)
     for (i, description) in enumerate(index.description)
-        if occursin(term |> lowercase, description |> lowercase)
+        if occursin(needle, lowercase(description))
             push!(match_indices, i)
         end
     end
 
-    [(; id = index[i, :id], description = index[i, :description]) for i in match_indices]
+    results = [
+        (; id = index[i, :id], description = index[i, :description])
+        for i in match_indices
+    ]
+
+    sort!(results, by = r -> (r.id != term, r.id))
 end

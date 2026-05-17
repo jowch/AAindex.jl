@@ -56,7 +56,7 @@ end
 
 Loads the entry with the given id from the index.
 """
-load_entry(id::AbstractString) = load_entry(INDEX, id)
+load_entry(id::AbstractString) = load_entry(INDEX[], id)
 
 function load_entry(index::DataFrame, id::AbstractString)
     record = only(subset(index, :id => ByRow(==(id))))

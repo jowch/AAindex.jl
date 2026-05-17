@@ -1,3 +1,7 @@
+# The package-wide index of entries, populated by `__init__`. A `const` `Ref`
+# keeps lookups type-stable (a non-const global would not be).
+const INDEX = Ref{DataFrame}()
+
 function __init__()
     if get(ENV, "JULIA_REGISTRYCI_AUTOMERGE", "false") == "true"
         # Do not trigger or require download here
@@ -44,6 +48,6 @@ function __init__()
         end
 
         # load index so that it is available for use in the package
-        global INDEX = load_index()
+        INDEX[] = load_index()
     end
 end

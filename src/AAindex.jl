@@ -15,12 +15,16 @@ using StaticArrays
 
 import Base: getindex
 
-export 
+export
 # Types
-AbstractAAIndex, Metadata, Index, AMatrix, 
+AbstractAAIndex, Metadata, Index, AMatrix,
 
 # Functions
-parse, aaindex_by_id, search, transform
+aaindex_by_id, search, transform
+
+# Note: `parse` is intentionally not exported. It is a distinct function from
+# `Base.parse` (not a method of it); exporting it would shadow `Base.parse` for
+# anyone doing `using AAindex`. Call it as `AAindex.parse` instead.
 
 abstract type AbstractAAIndex end
 
